@@ -47,4 +47,17 @@ public class HelloWorldTest {
 
     System.out.println(responseJsonPath.get("messages[1].message").toString());
   }
+
+  @Test
+  public void Ex6RedirectTest() {
+    Response response = RestAssured
+        .given()
+        .redirects()
+        .follow(false)
+        .when()
+        .get("https://playground.learnqa.ru/api/long_redirect")
+        .andReturn();
+    String headerLocation = response.getHeader("location");
+    System.out.println(headerLocation);
+  }
 }
