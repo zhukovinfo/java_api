@@ -60,4 +60,26 @@ public class HelloWorldTest {
     String headerLocation = response.getHeader("location");
     System.out.println(headerLocation);
   }
+
+  @Test
+  public void Ex7LongRedirectTest() {
+    int count = 0;
+    String location = "https://playground.learnqa.ru/api/long_redirect";
+    int statusCode;
+    do {
+      Response response = RestAssured
+          .given()
+          .redirects()
+          .follow(false)
+          .get(location)
+          .andReturn();
+      location = response.getHeader("location");
+      statusCode = response.statusCode();
+      count++;
+      if (location != null) {
+        System.out.println(count + " " + location);
+      }
+    }
+    while (statusCode != 200);
+  }
 }
