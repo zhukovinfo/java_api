@@ -1,8 +1,13 @@
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 public class HelloWorldTest {
@@ -81,5 +86,37 @@ public class HelloWorldTest {
       }
     }
     while (statusCode != 200);
+  }
+
+  @Test
+  public void Ex8TokensTest() throws InterruptedException {
+    String location = "https://playground.learnqa.ru/ajax/api/longtime_job";
+
+    JsonPath responseWithToken = RestAssured
+        .get(location)
+        .jsonPath();
+    String token = responseWithToken.get("token");
+    int seconds =responseWithToken.get("seconds");
+
+    JsonPath responseBeforeTaskCompleted = RestAssured
+        .given()
+        .params("token", token)
+        .get(location)
+        .jsonPath();
+    String status = responseBeforeTaskCompleted.get("status");
+    assertThat(status, equalTo("Job is NOT ready"));
+
+    TimeUnit.SECONDS.sleep(seconds);
+
+    JsonPath responseAfterTaskCompleted = RestAssured
+        .given()
+        .params("token", token)
+        .get(location)
+        .jsonPath();
+
+    status = responseAfterTaskCompleted.get("status");
+    assertThat(status, equalTo("Job is ready"));
+    String result = responseAfterTaskCompleted.get("result");
+    assertThat(result, CoreMatchers.notNullValue());
   }
 }
