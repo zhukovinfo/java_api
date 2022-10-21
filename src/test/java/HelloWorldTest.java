@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 import io.restassured.RestAssured;
 import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
+import io.restassured.http.Headers;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.util.HashMap;
@@ -16,6 +17,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -198,7 +202,17 @@ public class HelloWorldTest {
 
     Cookies cookies = response.detailedCookies();
     assertEquals("hw_value", cookies.get("HomeWork").getValue(), "Cookie is not homework: hw_value");
+  }
 
+  @Test
+  public void Ex12GetHeaderTest() {
+    Headers headers = RestAssured
+        .given()
+        .get("https://playground.learnqa.ru/api/homework_header")
+        .getHeaders();
+
+    assertEquals("Some secret value", headers.get("x-secret-homework-header").getValue(),
+        "Header is not homework: hw_value");
   }
 
 }
