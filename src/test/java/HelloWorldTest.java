@@ -3,6 +3,8 @@ import static org.junit.Assert.assertThat;
 
 
 import io.restassured.RestAssured;
+import io.restassured.http.Cookie;
+import io.restassured.http.Cookies;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.util.HashMap;
@@ -186,4 +188,17 @@ public class HelloWorldTest {
     assertTrue(str.length() >= 15,
         "Specified phrase's length more than 15 symbols");
   }
+
+  @Test
+  public void Ex11GetCookieTest() {
+    Response response = RestAssured
+        .given()
+        .get("https://playground.learnqa.ru/api/homework_cookie")
+        .andReturn();
+
+    Cookies cookies = response.detailedCookies();
+    assertEquals("hw_value", cookies.get("HomeWork").getValue(), "Cookie is not homework: hw_value");
+
+  }
+
 }
