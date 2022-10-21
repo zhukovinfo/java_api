@@ -1,6 +1,7 @@
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
+
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -13,6 +14,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HelloWorldTest {
 
@@ -175,5 +178,12 @@ public class HelloWorldTest {
         return;
       }
     }
+  }
+
+  @Test
+  public void Ex10ShortPhraseTest() {
+    String str = "тест длины фразы";
+    assertTrue(str.length() >= 15,
+        "Specified phrase's length more than 15 symbols");
   }
 }
