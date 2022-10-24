@@ -201,7 +201,7 @@ public class HelloWorldTest {
         .andReturn();
 
     Cookies cookies = response.detailedCookies();
-    assertEquals("hw_value", cookies.get("HomeWork").getValue(), "Cookie is not homework: hw_value");
+    assertEquals("hw_value", cookies.get("HomeWork").getValue(), "Cookie is not 'HomeWork: hw_value'");
   }
 
   @Test
