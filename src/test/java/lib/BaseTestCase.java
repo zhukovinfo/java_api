@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.restassured.http.Headers;
 import io.restassured.response.Response;
+import java.util.HashMap;
 import java.util.Map;
 
 public class BaseTestCase {
@@ -12,6 +13,7 @@ public class BaseTestCase {
   public static final String HOST_URL = "https://playground.learnqa.ru/";
   public static final String USER_URL = HOST_URL + "api/user/";
   public static final String LOGIN_URL = HOST_URL + "api/user/login";
+  public ApiCoreRequests apiCoreRequests =  new ApiCoreRequests();
 
   protected String getHeader(Response response, String name) {
     Headers headers = response.getHeaders();
@@ -31,4 +33,11 @@ public class BaseTestCase {
     return response.jsonPath().getInt(name);
   }
 
+  protected Response login(String email, String password) {
+    Map<String, String> authData = new HashMap<>();
+    authData.put("email", email);
+    authData.put("password", password);
+
+    return apiCoreRequests.makePostRequest(LOGIN_URL, authData);
+  }
 }

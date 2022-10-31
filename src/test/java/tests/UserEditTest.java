@@ -6,18 +6,15 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.util.HashMap;
 import java.util.Map;
-import lib.ApiCoreRequests;
 import lib.Assertions;
 import lib.BaseTestCase;
 import lib.DataGenerator;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 
 class UserEditTest extends BaseTestCase {
 
-  private final ApiCoreRequests apiCoreRequests = new ApiCoreRequests();
   private Map<String, String> testUserData;
   private String testUserId;
 
@@ -125,12 +122,4 @@ class UserEditTest extends BaseTestCase {
     Assertions.assertResponseCodeEquals(responseUserData, 400);
     Assertions.assertJsonByName(responseUserData, "error", "Too short value for field firstName");
   }
-
-  private Response login(String email, String password) {
-    Map<String, String> authData = new HashMap<>();
-    authData.put("email", email);
-    authData.put("password", password);
-    return apiCoreRequests.makePostRequest(LOGIN_URL, authData);
-  }
-
 }

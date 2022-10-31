@@ -4,10 +4,8 @@ import static io.restassured.RestAssured.given;
 
 import io.qameta.allure.Step;
 import io.qameta.allure.restassured.AllureRestAssured;
-import io.restassured.RestAssured;
 import io.restassured.http.Header;
 import io.restassured.response.Response;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ApiCoreRequests {
@@ -65,6 +63,15 @@ public class ApiCoreRequests {
         .filter(new AllureRestAssured())
         .body(editData)
         .put(url)
+        .andReturn();
+  }
+
+  public Response makeDeleteRequest(String url, String token, String cookie) {
+    return given()
+        .filter(new AllureRestAssured())
+        .header(new Header("x-csrf-token", token))
+        .cookie("auth_sid", cookie)
+        .delete(url)
         .andReturn();
   }
 }
