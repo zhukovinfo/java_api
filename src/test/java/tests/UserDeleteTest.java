@@ -1,6 +1,11 @@
 package tests;
 
 import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Link;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import io.restassured.response.Response;
 import java.util.Map;
 import lib.Assertions;
@@ -8,10 +13,14 @@ import lib.BaseTestCase;
 import lib.DataGenerator;
 import org.junit.jupiter.api.Test;
 
+@Epic("User tests")
+@Feature("Deleting user")
 class UserDeleteTest extends BaseTestCase {
 
   @Test
   @Description("Удаление пользователя ID 2 запрещено")
+  @Link("https://jira.project.ru/browse/TESTCASEID-100006")
+  @Severity(SeverityLevel.MINOR)
   void testRemoveUser2Denied() {
     Response responseGetAuth = login("vinkotov@example.com", "1234");
     String token = this.getHeader(responseGetAuth, "x-csrf-token");
@@ -26,6 +35,8 @@ class UserDeleteTest extends BaseTestCase {
 
   @Test
   @Description("Успешное удаление пользователя")
+  @Severity(SeverityLevel.CRITICAL)
+  @Link("https://jira.project.ru/browse/TESTCASEID-100007")
   void testRemoveUserSuccessfully() {
     //CREATE USER
     Map<String, String> testUserData = DataGenerator.getRegistrationData();
@@ -48,6 +59,8 @@ class UserDeleteTest extends BaseTestCase {
 
   @Test
   @Description("Удаление пользователя, будучи авторизованным другим пользователем")
+  @Severity(SeverityLevel.NORMAL)
+  @Link("https://jira.project.ru/browse/TESTCASEID-100008")
   void createTestUser() {
     //CREATE USER
     Map<String, String> testUserData = DataGenerator.getRegistrationData();

@@ -1,18 +1,32 @@
 package tests;
 
 import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Flaky;
+import io.qameta.allure.Issue;
+import io.qameta.allure.Link;
+import io.qameta.allure.Links;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import java.util.HashMap;
 import java.util.Map;
 import lib.Assertions;
 import lib.BaseTestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class UserGetTest extends BaseTestCase {
+@Epic("User tests")
+@Feature("View User Info")
+class UserGetTest extends BaseTestCase {
 
   @Test
-  public void testGetUserDataNotAuth() {
+  @Description("Получение данных пользователя неавторизованным пользователем")
+  @Link("https://jira.project.ru/browse/TESTCASEID-100001")
+  @Severity(SeverityLevel.NORMAL)
+  @Flaky
+  void testGetUserDataNotAuth() {
     Response responseUserData = RestAssured
         .get(USER_URL + "2")
         .andReturn();
@@ -23,7 +37,10 @@ public class UserGetTest extends BaseTestCase {
   }
 
   @Test
-  public void testGetUserDataAuthAsSameUser() {
+  @Description("Получение данных пользователя другим авторизованным пользователем")
+  @Severity(SeverityLevel.MINOR)
+  @Link("https://jira.project.ru/browse/TESTCASEID-100002")
+  void testGetUserDataAuthAsSameUser() {
     Map<String, String> authData = new HashMap<>();
     authData.put("email", "vinkotov@example.com");
     authData.put("password", "1234");
@@ -48,10 +65,11 @@ public class UserGetTest extends BaseTestCase {
     Assertions.assertJsonHasFields(responseUserData, expectedFields);
   }
 
-
   @Test
-  @Description("=Тест, который авторизовывается одним пользователем, но получает данные другого (т.е. с другим ID")
-  public void testGetUserDataAuthAsOtherUser() {
+  @Description("Тест, который авторизовывается одним пользователем, но получает данные другого (т.е. с другим ID")
+  @Link("https://jira.project.ru/browse/TESTCASEID-100003")
+  @Severity(SeverityLevel.CRITICAL)
+  void testGetUserDataAuthAsOtherUser() {
     Map<String, String> authData = new HashMap<>();
     authData.put("email", "vinkotov@example.com");
     authData.put("password", "1234");

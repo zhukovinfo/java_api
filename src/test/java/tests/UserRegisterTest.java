@@ -1,6 +1,11 @@
 package tests;
 
 import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Link;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import io.restassured.response.Response;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,9 +17,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+@Epic("User tests")
+@Feature("Registration")
 class UserRegisterTest extends BaseTestCase {
 
   @Test
+  @Description("Создание пользователя с существующим email")
+  @Link("https://jira.project.ru/browse/TESTCASEID-100013")
+  @Severity(SeverityLevel.NORMAL)
   void testCreateUserWithExistingEmail() {
     String email = "vinkotov@example.com";
 
@@ -30,6 +40,9 @@ class UserRegisterTest extends BaseTestCase {
   }
 
   @Test
+  @Description("Успешное создание пользователя")
+  @Link("https://jira.project.ru/browse/TESTCASEID-100014")
+  @Severity(SeverityLevel.CRITICAL)
   void testCreateUserSuccessfully() {
     Map<String, String> userData = DataGenerator.getRegistrationData();
 
@@ -41,6 +54,8 @@ class UserRegisterTest extends BaseTestCase {
 
   @Test
   @Description("Создание пользователя с некорректным email")
+  @Link("https://jira.project.ru/browse/TESTCASEID-100015")
+  @Severity(SeverityLevel.MINOR)
   void testCreateUserWithInvalidEmail() {
     Map<String, String> userData = new HashMap<>();
     userData.put("email", "vinkotovexample.com");
@@ -55,6 +70,8 @@ class UserRegisterTest extends BaseTestCase {
   @ParameterizedTest
   @ValueSource(strings = {"email",  "password", "username", "firstName", "lastName"})
   @Description("Создание пользователя без указания одного из полей")
+  @Link("https://jira.project.ru/browse/TESTCASEID-100016")
+  @Severity(SeverityLevel.NORMAL)
   void testCreateUserWithoutRequiredField(String param) {
     Map<String, String> userData = new HashMap<>();
     userData.put(param, null);
@@ -68,6 +85,8 @@ class UserRegisterTest extends BaseTestCase {
 
   @Test
   @Description("Создание пользователя с очень коротким именем в один символ")
+  @Link("https://jira.project.ru/browse/TESTCASEID-100017")
+  @Severity(SeverityLevel.MINOR)
   void testCreateUserWithShortFirstName() {
     String firstName = RandomStringUtils.randomAlphabetic(1).toLowerCase();
     Map<String, String> userData = new HashMap<>();
@@ -82,6 +101,8 @@ class UserRegisterTest extends BaseTestCase {
 
   @Test
   @Description("Создание пользователя с очень длинным именем - длиннее 250 символов")
+  @Link("https://jira.project.ru/browse/TESTCASEID-100018")
+  @Severity(SeverityLevel.MINOR)
   void testCreateUserWithLongFirstName() {
     String firstName = RandomStringUtils.randomAlphabetic(251).toLowerCase();
     Map<String, String> userData = new HashMap<>();

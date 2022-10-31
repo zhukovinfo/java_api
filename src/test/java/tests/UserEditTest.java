@@ -1,6 +1,11 @@
 package tests;
 
 import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Link;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -13,6 +18,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 
+@Epic("User tests")
+@Feature("Edit user data")
 class UserEditTest extends BaseTestCase {
 
   private Map<String, String> testUserData;
@@ -32,6 +39,9 @@ class UserEditTest extends BaseTestCase {
   }
 
   @Test
+  @Description("Создание нового пользователя")
+  @Link("https://jira.project.ru/browse/TESTCASEID-100009")
+  @Severity(SeverityLevel.NORMAL)
   void testEditJustCreatedTest() {
     //LOGIN
     Response responseGetAuth = login(testUserData.get("email"), testUserData.get("password"));
@@ -54,7 +64,9 @@ class UserEditTest extends BaseTestCase {
   }
 
   @Test
-  @Description("Попытаемся изменить данные пользователя, будучи неавторизованными")
+  @Description("Изменение данных пользователя, будучи неавторизованными")
+  @Link("https://jira.project.ru/browse/TESTCASEID-100010")
+  @Severity(SeverityLevel.NORMAL)
   void testEditUserByNotAuthorizedUser() {
     Map<String, String> editData = new HashMap<>();
     editData.put("firstName", "New Name");
@@ -67,7 +79,9 @@ class UserEditTest extends BaseTestCase {
   }
 
   @Test
-  @Description("Попытаемся изменить данные пользователя, будучи авторизованными другим пользователем")
+  @Description("Изменение данных пользователя, будучи авторизованными другим пользователем")
+  @Link("https://jira.project.ru/browse/TESTCASEID-100011")
+  @Severity(SeverityLevel.CRITICAL)
   void testEditUserByOtherAuthorizedUser() {
     Response responseGetAuth = login("vinkotov@example.com","1234");
 
@@ -86,8 +100,10 @@ class UserEditTest extends BaseTestCase {
   }
 
   @Test
-  @Description("Попытаемся изменить email пользователя, будучи авторизованными тем же пользователем, на новый email "
-      + "без символа @")
+  @Description("Изменение email пользователя, будучи авторизованными тем же пользователем, на новый email без "
+      + "символа @")
+  @Link("https://jira.project.ru/browse/TESTCASEID-100012")
+  @Severity(SeverityLevel.MINOR)
   void testEditEmailOnInvalidValue() {
     Response responseGetAuth = login(testUserData.get("email"), testUserData.get("password"));
     String token = this.getHeader(responseGetAuth, "x-csrf-token");
@@ -105,8 +121,10 @@ class UserEditTest extends BaseTestCase {
   }
 
   @Test
-  @Description("Попытаемся изменить firstName пользователя, будучи авторизованными тем же пользователем, на очень "
+  @Description("Изменение firstName пользователя, будучи авторизованными тем же пользователем, на очень "
       + "короткое значение в один символ")
+  @Severity(SeverityLevel.MINOR)
+  @Link("https://jira.project.ru/browse/TESTCASEID-100013")
   void testEditFirstNameOnShortValue() {
     Response responseGetAuth = login(testUserData.get("email"), testUserData.get("password"));
     String token = this.getHeader(responseGetAuth, "x-csrf-token");
