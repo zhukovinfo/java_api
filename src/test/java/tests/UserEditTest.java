@@ -1,62 +1,136 @@
 package tests;
 
+import io.qameta.allure.Description;
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.util.HashMap;
 import java.util.Map;
+import lib.ApiCoreRequests;
 import lib.Assertions;
 import lib.BaseTestCase;
 import lib.DataGenerator;
-import org.junit.Test;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 
-public class UserEditTest extends BaseTestCase {
-  @Test
-  public void testEditJustCreatedTest() {
-    //GENERATE USER
-    Map<String, String> userData = DataGenerator.getRegistrationData();
+class UserEditTest extends BaseTestCase {
+
+  private final ApiCoreRequests apiCoreRequests = new ApiCoreRequests();
+  private Map<String, String> testUserData;
+  private String testUserId;
+
+  @BeforeEach
+  public void createTestUser() {
+    testUserData = DataGenerator.getRegistrationData();
 
     JsonPath responseCreateAuth = RestAssured
         .given()
-        .body(userData)
-        .post("https://playground.learnqa.ru/api/user/")
+        .body(testUserData)
+        .post(USER_URL)
         .jsonPath();
 
-    String userId = responseCreateAuth.getString("id");
+    testUserId = responseCreateAuth.getString("id");
+  }
 
+  @Test
+  void testEditJustCreatedTest() {
     //LOGIN
-    Map<String, String> authData = new HashMap<>();
-    authData.put("email", userData.get("email"));
-    authData.put("password", userData.get("password"));
-
-    Response responseGetAuth = RestAssured
-        .given()
-        .body(authData)
-        .post("https://playground.learnqa.ru/api/user/login")
-        .andReturn();
+    Response responseGetAuth = login(testUserData.get("email"), testUserData.get("password"));
+    String token = this.getHeader(responseGetAuth, "x-csrf-token");
+    String cookie = this.getCookie(responseGetAuth, "auth_sid");
 
     //EDIT
     String newName = "Changed Name";
     Map<String, String> editData = new HashMap<>();
     editData.put("firstName", newName);
 
-    Response responseEditUser = RestAssured
-        .given()
-        .header("x-csrf-token", this.getHeader(responseGetAuth, "x-csrf-token"))
-        .cookie("auth_sid", this.getCookie(responseGetAuth, "auth_sid"))
-        .body(editData)
-        .put("https://playground.learnqa.ru/api/user/" + userId)
-        .andReturn();
+    apiCoreRequests
+        .makePutRequest( USER_URL + testUserId, editData, token, cookie);
 
     //GET
-    Response responseUserData = RestAssured
-        .given()
-        .header("x-csrf-token", this.getHeader(responseGetAuth, "x-csrf-token"))
-        .cookie("auth_sid", this.getCookie(responseGetAuth, "auth_sid"))
-        .get("https://playground.learnqa.ru/api/user/" + userId)
-        .andReturn();
+    Response responseUserData = apiCoreRequests
+        .makeGetRequest(USER_URL + testUserId, token, cookie);
 
     Assertions.assertJsonByName(responseUserData, "firstName", newName);
+  }
+
+  @Test
+  @Description("Попытаемся изменить данные пользователя, будучи неавторизованными")
+  void testEditUserByNotAuthorizedUser() {
+    Map<String, String> editData = new HashMap<>();
+    editData.put("firstName", "New Name");
+
+    Response responseUserData = apiCoreRequests
+        .makePutRequest(USER_URL + testUserId, editData);
+
+    Assertions.assertResponseCodeEquals(responseUserData, 400);
+    Assertions.assertResponseTextEquals(responseUserData, "Auth token not supplied");
+  }
+
+  @Test
+  @Description("Попытаемся изменить данные пользователя, будучи авторизованными другим пользователем")
+  void testEditUserByOtherAuthorizedUser() {
+    Response responseGetAuth = login("vinkotov@example.com","1234");
+
+    String token = this.getHeader(responseGetAuth, "x-csrf-token");
+    String cookie = this.getCookie(responseGetAuth, "auth_sid");
+
+    Map<String, String> editData = new HashMap<>();
+    editData.put("firstName", "New Name");
+
+    Response responseUserData = apiCoreRequests
+        .makePutRequest(USER_URL + testUserId, editData, token, cookie);
+
+    Assertions.assertResponseCodeEquals(responseUserData, 400);
+    Assertions.assertResponseTextEquals(responseUserData,
+        "Please, do not edit test users with ID 1, 2, 3, 4 or 5.");
+  }
+
+  @Test
+  @Description("Попытаемся изменить email пользователя, будучи авторизованными тем же пользователем, на новый email "
+      + "без символа @")
+  void testEditEmailOnInvalidValue() {
+    Response responseGetAuth = login(testUserData.get("email"), testUserData.get("password"));
+    String token = this.getHeader(responseGetAuth, "x-csrf-token");
+    String cookie = this.getCookie(responseGetAuth, "auth_sid");
+
+    Map<String, String> editData = new HashMap<>();
+    editData.put("email", "newmail.com");
+    testUserData = DataGenerator.getRegistrationData(editData);
+
+    Response responseUserData = apiCoreRequests
+        .makePutRequest(USER_URL + testUserId, testUserData, token, cookie);
+
+    Assertions.assertResponseCodeEquals(responseUserData, 400);
+    Assertions.assertResponseTextEquals(responseUserData, "Invalid email format");
+  }
+
+  @Test
+  @Description("Попытаемся изменить firstName пользователя, будучи авторизованными тем же пользователем, на очень "
+      + "короткое значение в один символ")
+  void testEditFirstNameOnShortValue() {
+    Response responseGetAuth = login(testUserData.get("email"), testUserData.get("password"));
+    String token = this.getHeader(responseGetAuth, "x-csrf-token");
+    String cookie = this.getCookie(responseGetAuth, "auth_sid");
+
+    Map<String, String> editData = new HashMap<>();
+    editData.put("firstName", RandomStringUtils.randomAlphabetic(1).toLowerCase());
+    testUserData = DataGenerator.getRegistrationData(editData);
+
+    Response responseUserData = apiCoreRequests
+        .makePutRequest(USER_URL + testUserId, testUserData, token, cookie);
+
+    Assertions.assertResponseCodeEquals(responseUserData, 400);
+    Assertions.assertJsonByName(responseUserData, "error", "Too short value for field firstName");
+  }
+
+  private Response login(String email, String password) {
+    Map<String, String> authData = new HashMap<>();
+    authData.put("email", email);
+    authData.put("password", password);
+    return apiCoreRequests.makePostRequest(LOGIN_URL, authData);
   }
 
 }

@@ -25,7 +25,7 @@ class UserAuthTest extends BaseTestCase {
   private final ApiCoreRequests apiCoreRequests = new ApiCoreRequests();
 
   @BeforeEach
-  public void loginUSer() {
+  public void loginUser() {
     Map<String, String> authData = new HashMap<>();
     authData.put("email", "vinkotov@example.com");
     authData.put("password", "1234");
