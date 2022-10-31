@@ -1,11 +1,9 @@
 package tests;
 
 import io.qameta.allure.Description;
-import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import java.util.HashMap;
 import java.util.Map;
-import lib.ApiCoreRequests;
 import lib.Assertions;
 import lib.BaseTestCase;
 import lib.DataGenerator;
@@ -16,9 +14,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 class UserRegisterTest extends BaseTestCase {
 
-  public static final String URL = "https://playground.learnqa.ru/api/user";
-  private final ApiCoreRequests apiCoreRequests = new ApiCoreRequests();
-
   @Test
   void testCreateUserWithExistingEmail() {
     String email = "vinkotov@example.com";
@@ -27,7 +22,7 @@ class UserRegisterTest extends BaseTestCase {
     userData.put("email", email);
     userData = DataGenerator.getRegistrationData(userData);
 
-    Response responseCreateAuth = apiCoreRequests.makePostRequest(URL, userData);
+    Response responseCreateAuth = apiCoreRequests.makePostRequest(USER_URL, userData);
 
     Assertions.assertResponseCodeEquals(responseCreateAuth, 400);
     Assertions.assertResponseTextEquals(responseCreateAuth,
@@ -38,7 +33,7 @@ class UserRegisterTest extends BaseTestCase {
   void testCreateUserSuccessfully() {
     Map<String, String> userData = DataGenerator.getRegistrationData();
 
-    Response responseCreateAuth = apiCoreRequests.makePostRequest(URL, userData);
+    Response responseCreateAuth = apiCoreRequests.makePostRequest(USER_URL, userData);
 
     Assertions.assertResponseCodeEquals(responseCreateAuth, 200);
     Assertions.assertJsonHasField(responseCreateAuth, "id");
@@ -51,7 +46,7 @@ class UserRegisterTest extends BaseTestCase {
     userData.put("email", "vinkotovexample.com");
     userData = DataGenerator.getRegistrationData(userData);
 
-    Response response = apiCoreRequests.makePostRequest(URL, userData);
+    Response response = apiCoreRequests.makePostRequest(USER_URL, userData);
 
     Assertions.assertResponseCodeEquals(response, 400);
     Assertions.assertResponseTextEquals(response, "Invalid email format");
@@ -65,7 +60,7 @@ class UserRegisterTest extends BaseTestCase {
     userData.put(param, null);
     userData = DataGenerator.getRegistrationData(userData);
 
-    Response response = apiCoreRequests.makePostRequest(URL, userData);
+    Response response = apiCoreRequests.makePostRequest(USER_URL, userData);
 
     Assertions.assertResponseCodeEquals(response, 400);
     Assertions.assertResponseTextEquals(response, "The following required params are missed: "+param);
@@ -79,7 +74,7 @@ class UserRegisterTest extends BaseTestCase {
     userData.put("firstName", firstName);
     userData = DataGenerator.getRegistrationData(userData);
 
-    Response response = apiCoreRequests.makePostRequest(URL, userData);
+    Response response = apiCoreRequests.makePostRequest(USER_URL, userData);
 
     Assertions.assertResponseCodeEquals(response, 400);
     Assertions.assertResponseTextEquals(response, "The value of 'firstName' field is too short");
@@ -93,7 +88,7 @@ class UserRegisterTest extends BaseTestCase {
     userData.put("firstName", firstName);
     userData = DataGenerator.getRegistrationData(userData);
 
-    Response response = apiCoreRequests.makePostRequest(URL, userData);
+    Response response = apiCoreRequests.makePostRequest(USER_URL, userData);
 
     Assertions.assertResponseCodeEquals(response, 400);
     Assertions.assertResponseTextEquals(response, "The value of 'firstName' field is too long");
